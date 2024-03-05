@@ -4,8 +4,11 @@ import com.renato.person.repository.PersonRepository;
 import com.renato.person.repository.PersonRepositoryMapper;
 import com.renato.person.repository.entity.PersonEntity;
 import com.renato.person.service.dto.PersonDTO;
+import com.renato.person.service.exception.PersonNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class PersonService implements IPersonService {
@@ -19,8 +22,13 @@ public class PersonService implements IPersonService {
     }
 
     public PersonDTO getPersonById(final Long id) {
-        final PersonEntity personEntity = personRepository.findById(id).get();
-        return PersonRepositoryMapper.toPersonDTO(personEntity);
+        final Optional<PersonEntity> personEntity = personRepository.findById(id);
+
+        if (!personEntity.isPresent()) {
+            throw new PersonNotFoundException("Person not found for the given id");
+        }
+
+        return PersonRepositoryMapper.toPersonDTO(personEntity.get());
     }
 
 }
